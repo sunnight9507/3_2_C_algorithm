@@ -1,80 +1,162 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-void iii(int *q,int n,int *f,int *r,int in){
-	*r = (*r+1)%n;
-	q[*r] = in;
+typedef struct Que{
+	struct Que* p;
+	int num;
+	struct Que* n;
+}que;
+
+typedef struct Deque{
+	que *front;
+	que *rear;
+}deque;
+
+void init(deque *dq){
+	dq->front = NULL;
+	dq->rear = NULL;
 }
 
-void ddd(int *q,int n,int *f,int *r){
-	*f = (*f+1)%n;
-	q[*f] = 0;
+que* newnode(){
+	que *newnode;
+	newnode = (que*)malloc(sizeof(que));
+	newnode->num = 0;
+	newnode->n = NULL;
+	newnode->p = NULL;
+	return newnode;
 }
 
-void ppp(int *q,int n,int *f,int *r){
-	int i;
-	for(i=0;i<n;i++){
-		printf(" %d",*(q+i));
+int underflow(deque *dq){
+	if(dq->front == NULL && dq->rear == NULL){
+		printf("underflow");
+		return 1;
+	}
+	else return 0;
+}
+
+void add_front(deque *dq,int num){
+	que *node=newnode();
+	node->num = num;
+	if(dq->front == NULL && dq->rear == NULL){
+		dq->front = node;
+		dq->rear = node;
+	}
+	else{
+		node->n = dq->front;
+		dq->front->p = node;
+		dq->front = node;		
+	}
+}
+
+void add_rear(deque *dq,int num){
+
+	que *node=newnode();
+	node->num = num;
+	if(dq->front == NULL && dq->rear==NULL){
+		dq->front = node;
+		dq->rear = node;
+	}
+	else{
+		node->p = dq->rear;
+		dq->rear->n = node;
+		dq->rear = node;
+	}
+}
+
+int delete_front(deque *dq){
+	
+	int n;
+	que *node = newnode();
+	n = dq->front->num;
+	node = dq->front;
+	if(dq->front == dq->rear){
+		dq->front = NULL;
+		dq->rear = NULL;
+	}
+	else{
+		dq->front = dq->front->n;
+		dq->front->p = NULL;
+	}
+	free(node);
+	return n;
+}
+
+int delete_rear(deque *dq){
+	
+	int n;
+	que *node = newnode();
+	n = dq->front->num;
+	node = dq->rear;
+	if(dq->front == dq->rear){
+		dq->front = NULL;
+		dq->rear = NULL;
+	}
+	else{
+		dq->rear = dq->rear->p;
+		dq->rear->n = NULL;
+	}
+	free(node);
+	return n;
+}
+
+void print(deque *dq){
+	
+	que *node = newnode();
+	node = dq->front;
+	while(1){
+		if(node == NULL)
+			break;
+		printf(" %d",node->num);
+		node = node->n;
 	}
 	printf("\n");
-}
-
-int overflow(int *q,int n,int *f,int *r){
-	if(*f == (*r+1)%n){
-		printf("overflow");
-		ppp(q,n,f,r);
-		return 0;
-	}
-	else return 1;
-}
-
-int underflow(int *q,int n,int *f,int *r){
-	if(*f == *r){
-		printf("underflow");
-		return 0;
-	}
-	else return 1;
+	free(node);
 }
 
 int main(){
-	int qn,*q,n,i,in,front=0,rear=0,*f,*r;
-	char a,b[5];
-
-	scanf("%d",&qn);
-	q = (int*)calloc(qn,sizeof(int));
-
-	f = &front;
-	r = &rear;
+	int n,i,num,del;
+	deque dq;
+	que *node;
+	char a[5],b[3];
 
 	scanf("%d",&n);
 	gets(b);
-	for(i=1;i<=n;i++){
-		scanf("%c",&a);
-		
-		switch(a){
-			case 'I':
-				scanf("%d",&in);
-				gets(b);
-				if(overflow(q,qn,f,r))
-					iii(q,qn,f,r,in);
-				else
-					return 0;
-				break;
-			case 'D':
-				gets(b);
-				if(underflow(q,qn,f,r))
-					ddd(q,qn,f,r);
-				else
-					return 0;
 
-				break;
-			case 'P':
-				gets(b);
-				ppp(q,qn,f,r);
-				break;
+	init(&dq);
+
+	for(i=1;i<=n;i++){
+		scanf("%s",a);
+		if(a[0] == 'A' && a[1] == 'F'){
+			scanf("%d",&num);
+			add_front(&dq,num);
+		}
+		else if(a[0] == 'A' && a[1] == 'R'){
+			scanf("%d",&num);
+			add_rear(&dq,num);
+		}
+		else if(a[0] == 'D' && a[1] == 'F'){
+			if(underflow(&dq))
+				return 0;
+			else
+				del = delete_front(&dq);
+		}
+		else if(a[0] == 'D' && a[1] == 'R'){
+			if(underflow(&dq))
+				return 0;
+			else
+				del = delete_rear(&dq);
+		}
+		else if(a[0] == 'P'){
+			print(&dq);
 		}
 	}
 
-	free(q);
-
+	node = newnode();
+	node = dq.front;
+	while(node != NULL){
+		que* next = node->n;
+		free(node);
+		node = next;
+	}
 }
