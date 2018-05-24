@@ -1,89 +1,80 @@
 ﻿#include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-typedef struct stack
-{
-	int data[100];
-	int t;
-}stack;
-
-void init(stack *a)
-{
-	a->t = -1;
+void iii(int *q,int n,int *f,int *r,int in){
+	*r = (*r+1)%n;
+	q[*r] = in;
 }
 
-int empty(stack *a)
-{
-	return (a->t == -1);
+void ddd(int *q,int n,int *f,int *r){
+	*f = (*f+1)%n;
+	q[*f] = 0;
 }
 
-int full(stack *a)
-{
-	return (a->t == 99);
-}
-
-void push(stack *a,int data)
-{
-	if(full(a)){
-		return;
+void ppp(int *q,int n,int *f,int *r){
+	int i;
+	for(i=0;i<n;i++){
+		printf(" %d",*(q+i));
 	}
-	else{
-		a->data[++(a->t)]=data;
-		
-	}
+	printf("\n");
 }
 
-int pop(stack *a)
-{
-	if(empty(a))
-	{
-		return -1;
+int overflow(int *q,int n,int *f,int *r){
+	if(*f == (*r+1)%n){
+		printf("overflow");
+		ppp(q,n,f,r);
+		return 0;
 	}
-	return a->data[(a->t)--];
+	else return 1;
 }
 
-int cal(char *aaa) // 후위표기식을 계산하는 함수
-{ 
-    stack s; 
-    int i,len; 
-    char ch; 
-    int a,b,value; 
-	len = strlen(aaa);
-
-    init(&s); 
-
-    for(i=0;i<len;i++) 
-    { 
-        ch=aaa[i]; 
-        if(ch != '+' && ch != '-' && ch != '*' && ch != '/') 
-            push(&s,ch-'0'); // 피연산자 
-        else 
-        { 
-            b=pop(&s); 
-            a=pop(&s); 
-
-            switch(ch) 
-            { 
-                case '+' : push(&s,a+b);    break; 
-                case '-' : push(&s,a-b);    break; 
-                case '*' : push(&s,a*b);    break; 
-                case '/' : push(&s,a/b);    break; 
-            } 
-        } 
-    } 
-
-    return pop(&s); 
-} 
+int underflow(int *q,int n,int *f,int *r){
+	if(*f == *r){
+		printf("underflow");
+		return 0;
+	}
+	else return 1;
+}
 
 int main(){
-	int i,n;
-	char ch[101];
+	int qn,*q,n,i,in,front=0,rear=0,*f,*r;
+	char a,b[5];
+
+	scanf("%d",&qn);
+	q = (int*)calloc(qn,sizeof(int));
+
+	f = &front;
+	r = &rear;
 
 	scanf("%d",&n);
-	gets(ch);
+	gets(b);
 	for(i=1;i<=n;i++){
-		gets(ch);
-		printf("%d\n",cal(ch));
+		scanf("%c",&a);
+		
+		switch(a){
+			case 'I':
+				scanf("%d",&in);
+				gets(b);
+				if(overflow(q,qn,f,r))
+					iii(q,qn,f,r,in);
+				else
+					return 0;
+				break;
+			case 'D':
+				gets(b);
+				if(underflow(q,qn,f,r))
+					ddd(q,qn,f,r);
+				else
+					return 0;
+
+				break;
+			case 'P':
+				gets(b);
+				ppp(q,qn,f,r);
+				break;
+		}
 	}
+
+	free(q);
 
 }
